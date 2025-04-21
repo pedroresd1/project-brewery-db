@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  airflow:
+    image: apache/airflow:2.5.0
+    environment:
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor      
+      ## Executar o script python secret-key.py
+      ## Copiar a chave que ele gerar
+      ## Colar o resultado aqui: AIRFLOW__WEBSERVER__SECRET_KEY
+      - AIRFLOW__WEBSERVER__SECRET_KEY=KSDyB_5CLJjCqV0Dtd9GcUxxhI59no6j2aJgv_oVh14=
+      - AIRFLOW__WEBSERVER__WORKERS=1
+      - AIRFLOW__WEBSERVER__PORT=8080
+    depends_on:
+      - postgres
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./data:/opt/airflow/data
+    ports:
+      - "8080:8080"
+    command: >
+      bash -c "
+      airflow db init &&
+      airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin &&
+      airflow webserver
+      "
+
+  airflow-scheduler:
+    image: apache/airflow:2.5.0
+    environment:
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+        
+      ## Executar o script python secret-key.py
+      ## Copiar a chave que ele gerar
+      ## Colar o resultado aqui: AIRFLOW__WEBSERVER__SECRET_KEY
+      - AIRFLOW__WEBSERVER__SECRET_KEY=KSDyB_5CLJjCqV0Dtd9GcUxxhI59no6j2aJgv_oVh14=
+    depends_on:
+      - postgres
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./data:/opt/airflow/data
+    command: ["scheduler"]
+
+
+volumes:
+  postgres_data:
+  data:  
