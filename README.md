@@ -92,4 +92,4 @@ Siga os passos abaixo para configurar o ambiente utilizando o Docker Compose:
     Clique no nome da DAG (`brewery_data_pipeline`) para acessar a visão detalhada da execução. Você poderá acompanhar o status de cada task (extract\_data, transform\_data, aggregate\_data) e verificar os logs em caso de algum problema.
 
 6.  **Verifique a criação dos arquivos:**
-    Após a conclusão bem-sucedida da DAG,
+    Após a conclusão bem-sucedida da DAG.
